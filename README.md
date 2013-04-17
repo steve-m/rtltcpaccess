@@ -15,6 +15,12 @@ pre-built version of the library which is also available from here:
 
 http://steve-m.de/projects/rtl-sdr/rtltcpaccess.tar.gz
 
+To get the installation script, run:
+
+    wget https://raw.github.com/steve-m/rtltcpaccess/master/dab_install.sh
+    chmod +x dab_install.sh
+    ./dab_install.sh
+
 If you want to build the library yourself, get MinGW and run 'make'.
 
 Usage

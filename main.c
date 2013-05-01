@@ -120,7 +120,7 @@ DWORD RTK_BDAFilterInit(HANDLE hnd)
 	char ip_addr[16] = DEFAULT_IP;
 	uint32_t port = DEFAULT_PORT;
 	uint32_t testmode = 0;
-	int flag = 1;
+	int flag = 1, tries = 0;
 	struct sockaddr_in remote;
 	struct command samprate_cmd = { 0x02, htonl(2048000) };
 	struct command testmode_cmd = { 0x07, htonl(1) };
@@ -159,8 +159,15 @@ DWORD RTK_BDAFilterInit(HANDLE hnd)
 
 	while (connect(sock, (struct sockaddr *)&remote, sizeof(remote)) != 0) {
 		fprintf(stderr, "[rtltcpaccess] trying to connect to %s:%d...\n", ip_addr, port);
+		if (tries > 10) {
+			fprintf(stderr, "[rtltcpaccess] timeout, aborting\n");
+			return FALSE;
+		}
+
 		Sleep(500);
+		tries++;
 	}
+
 	fprintf(stderr, "[rtltcpaccess] connected!\n");
 	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag));
 
@@ -182,7 +189,8 @@ DWORD RTK_BDAFilterRelease(HANDLE hnd)
 {
 	exit_thread = TRUE;
 
-	WaitForSingleObject(thread_finished, INFINITE);
+	if (thread_finished)
+		WaitForSingleObject(thread_finished, INFINITE);
 
 	if (sock != -1) {
 		closesocket(sock);
@@ -230,7 +238,7 @@ DWORD RTK_GetData(LPBYTE data, DWORD bufsize, LPDWORD getlen, LPDWORD discardlen
 			fprintf(stderr, "[rtltcpaccess] lost at least %d bytes\n", lost);
 	}
 
-	if (bufsize > BUFF_SIZE) {
+	if (bufsize >= BUFF_SIZE) {
 		memcpy(data, buff, BUFF_SIZE);
 		*getlen = BUFF_SIZE;
 		*discardlen = 0;

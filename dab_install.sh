@@ -20,8 +20,15 @@ get_files()
 	return 0
 }
 
+wine --version
+if [ "$?" != "0" ]; then
+	echo "Wine needs to be installed!"
+	exit 1
+fi
+
 # figure out application path
 app_path="`wine cmd /c echo %ProgramFiles% | tr -d '\r\n'`\NOXON Media\NOXON DAB MediaPlayer"
+unix_path="`winepath -u "$app_path"`"
 
 # grab the software
 get_files
@@ -34,11 +41,11 @@ fi
 wine dab_setup.exe /S /v/qn
 
 # Updater can make trouble with some versions of Wine, remove it (running in background with 100% CPU usage)
-rm "`winepath -u "$app_path\UpdateCheck.exe"`"
-rm "`winepath -u "$app_path\RTL283XACCESS.dll"`"
+rm "$unix_path/UpdateCheck.exe"
+rm "$unix_path/RTL283XACCESS.dll"
 
 tar xvf rtltcpaccess.tar.gz
-cp RTL283XACCESS.dll "`winepath -u "$app_path\"`"
+cp RTL283XACCESS.dll "$unix_path/"
 
 # Add device information to registry to make it believe a device is connected via USB
 wine regedit device_key.reg

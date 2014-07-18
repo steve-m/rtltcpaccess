@@ -1,0 +1,15 @@
+LIBRARY RTL283XACCESS
+EXPORTS
+  RTK_BDAFilterInit
+  RTK_BDAFilterRelease
+  RTK_Demod_Byte_Read
+  RTK_Demod_Byte_Write
+  RTK_DeviceUpdate
+  RTK_GetData
+  RTK_Get_TunerType
+  RTK_ReleaseDABEventHandle
+  RTK_SYS_Byte_Read
+  RTK_SYS_Byte_Write
+  RTK_SetDABEventHandle
+  RTK_Set_Bandwidth
+  RTK_Set_Frequency

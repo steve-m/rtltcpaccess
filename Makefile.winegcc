@@ -1,0 +1,10 @@
+# winegcc Makefile for rtltcpaccess
+
+all : main
+
+main:
+	winegcc -m32 -mno-cygwin -O3 -Wall -Wno-unused-function -o main.o -c main.c
+	winegcc -m32 -mno-cygwin -shared -s -o RTL283XACCESS.dll rtl283xaccess.def main.o -lws2_32
+
+clean:
+	rm *.o *.dll.so

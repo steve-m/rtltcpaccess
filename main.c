@@ -42,12 +42,20 @@ static int exit_thread = FALSE;
 static int enable_testmode = FALSE;
 static SOCKET sock;
 
+#ifndef __WINE__
 #pragma pack(push, 1)
+#else
+#include <pshpack1.h>
+#endif
 struct command {
 	unsigned char cmd;
 	unsigned int param;
 }__attribute__((packed));
+#ifndef __WINE__
 #pragma pack(pop)
+#else
+#include <poppack.h>
+#endif
 
 static int is_error(int perr)
 {

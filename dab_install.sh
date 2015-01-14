@@ -8,7 +8,7 @@ tcpacc_md5="73a6f0eab866340b7a8389e95c77e757"
 get_files()
 {
 	if [ "`md5sum dab_setup.exe | cut -d ' ' -f 1`" != "$dab_md5" ]; then
-		wget http://ftp.terratec.de/NOXON/NOXON_DAB_Stick/Updates/NOXON_DAB_Stick_DAB_MediaPlayer_Setup_4.1.0.exe -O dab_setup.exe
+		wget http://ftp.noxonradio.de/NOXON/NOXON_DAB_Stick/Updates/NOXON_DAB_Stick_DAB_MediaPlayer_Setup_4.1.0.exe -O dab_setup.exe
 		[ "`md5sum dab_setup.exe | cut -d ' ' -f 1`" != "$dab_md5" ] && return 1
 	fi
 

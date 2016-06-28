@@ -13,7 +13,7 @@ Installation
 The installation script (dab_install.sh) fetches the DAB software as well as a
 pre-built version of the library which is also available from here:
 
-http://steve-m.de/projects/rtl-sdr/rtltcpaccess.tar.gz
+https://raw.github.com/steve-m/rtltcpaccess/master/rtltcpaccess.tar.gz
 
 To get the installation script, run:
 

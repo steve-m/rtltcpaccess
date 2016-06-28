@@ -13,7 +13,7 @@ get_files()
 	fi
 
 	if [ "`md5sum rtltcpaccess.tar.gz | cut -d ' ' -f 1`" != "$tcpacc_md5" ]; then
-		wget http://steve-m.de/projects/rtl-sdr/rtltcpaccess.tar.gz -O rtltcpaccess.tar.gz
+		wget https://raw.github.com/steve-m/rtltcpaccess/master/rtltcpaccess.tar.gz -O rtltcpaccess.tar.gz
 		[ "`md5sum rtltcpaccess.tar.gz | cut -d ' ' -f 1`" != "$tcpacc_md5" ] && return 2
 	fi
 

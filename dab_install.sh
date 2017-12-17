@@ -8,7 +8,7 @@ tcpacc_md5="73a6f0eab866340b7a8389e95c77e757"
 get_files()
 {
 	if [ "`md5sum DABPlayer5.01.zip | cut -d ' ' -f 1`" != "$dab_md5" ]; then
-		wget http://ftp.noxonradio.de/NOXON/NOXON_DAB_Stick/Updates/DABPlayer5.01.zip -O DABPlayer5.01.zip
+		wget https://www.noxonradio.ch/download/NOXON_DAB_Stick/Updates/DABPlayer5.01.zip -O DABPlayer5.01.zip
 		[ "`md5sum DABPlayer5.01.zip | cut -d ' ' -f 1`" != "$dab_md5" ] && return 1
 	fi
 

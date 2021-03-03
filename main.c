@@ -1,8 +1,11 @@
 /*
  * rtltcpaccess, a drop-in replacement for RTL283XACCESS.dll
+ * that connects to rtl_tcp
  * https://github.com/steve-m/rtltcpaccess
  *
- * Copyright (c) 2013 Steve Markgraf <steve@steve-m.de>
+ * Copyright (c) 2013-2021 Steve Markgraf <steve@steve-m.de>
+ * 
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -38,8 +41,10 @@ static uint8_t buff[BUFF_SIZE];
 static HANDLE got_data = NULL;
 static HANDLE pulled_data = NULL;
 static HANDLE thread_finished = NULL;
-static int exit_thread = FALSE;
-static int enable_testmode = FALSE;
+static BOOL exit_thread = FALSE;
+static BOOL enable_testmode = FALSE;
+static BOOL is_initialized = FALSE;
+static BOOL is_running = FALSE;
 static SOCKET sock;
 
 #ifndef __WINE__
@@ -96,10 +101,12 @@ static void tcp_thread(void *param)
 			index += received_bytes;
 		}
 
-		if (got_data) {
+		if (got_data && !exit_thread && is_running) {
 			ResetEvent(pulled_data);
 			SetEvent(got_data);
 			WaitForSingleObject(pulled_data, INFINITE);
+		} else {
+			Sleep(1);
 		}
 	}
 
@@ -133,6 +140,12 @@ DWORD RTK_BDAFilterInit(HANDLE hnd)
 	struct command samprate_cmd = { 0x02, htonl(2048000) };
 	struct command testmode_cmd = { 0x07, htonl(1) };
 	WSADATA wsd;
+
+	/* Newer versions of the DAB player seem to call this function
+	 * two times on startup, the second time without calling
+	 * RTK_BDAFilterRelease() first, so just return in this case */
+	if (is_initialized)
+		return TRUE;
 
 	r = WSAStartup(MAKEWORD(2,2), &wsd);
 
@@ -188,7 +201,10 @@ DWORD RTK_BDAFilterInit(HANDLE hnd)
 
 	pulled_data = CreateEventA(0, 0, 0, 0);
 	thread_finished = CreateEventA(0, 0, 0, 0);
+	exit_thread = FALSE;
 	_beginthread(tcp_thread, 0, NULL);
+
+	is_initialized = TRUE;
 
 	return TRUE;
 }
@@ -207,6 +223,9 @@ DWORD RTK_BDAFilterRelease(HANDLE hnd)
 
 	WSACleanup();
 
+	is_initialized = FALSE;
+	is_running = FALSE;
+
 	return TRUE;
 }
 
@@ -221,7 +240,12 @@ DWORD RTK_Set_Frequency(DWORD freq)
 }
 
 DWORD RTK_Set_Bandwidth(DWORD bw) { return TRUE; }
-DWORD RTK_DeviceUpdate(void) { return TRUE; }
+
+DWORD RTK_DeviceUpdate(void)
+{ 
+	is_running = TRUE;
+	return TRUE;
+}
 
 DWORD RTK_GetData(LPBYTE data, DWORD bufsize, LPDWORD getlen, LPDWORD discardlen)
 {

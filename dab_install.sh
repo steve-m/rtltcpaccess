@@ -2,19 +2,21 @@
 # Installation script for DAB receiver in Wine
 # https://github.com/steve-m/rtltcpaccess
 
-dab_md5="a25b2303badbea40df5e2e2ff58486a3"
-tcpacc_md5="73a6f0eab866340b7a8389e95c77e757"
+dab_name="NOXON_DAB_MediaPlayer-v5.1.3.exe.zip"
+dab_md5="95b959a321c5d25af651f308cd096c2b"
+tcpacc_name="rtltcpaccess.tar.gz"
+tcpacc_md5="3b4ba2c40dd62b700bf47d8937c819e8"
 
 get_files()
 {
-	if [ "`md5sum DABPlayer5.01.zip | cut -d ' ' -f 1`" != "$dab_md5" ]; then
-		wget https://www.noxonradio.ch/download/NOXON_DAB_Stick/Updates/DABPlayer5.01.zip -O DABPlayer5.01.zip
-		[ "`md5sum DABPlayer5.01.zip | cut -d ' ' -f 1`" != "$dab_md5" ] && return 1
+	if [ "`md5sum $dab_name | cut -d ' ' -f 1`" != "$dab_md5" ]; then
+		wget https://www.noxonradio.ch/download/NOXON_DAB_Stick/$dab_name -O $dab_name
+		[ "`md5sum $dab_name | cut -d ' ' -f 1`" != "$dab_md5" ] && return 1
 	fi
 
-	if [ "`md5sum rtltcpaccess.tar.gz | cut -d ' ' -f 1`" != "$tcpacc_md5" ]; then
-		wget https://raw.github.com/steve-m/rtltcpaccess/master/rtltcpaccess.tar.gz -O rtltcpaccess.tar.gz
-		[ "`md5sum rtltcpaccess.tar.gz | cut -d ' ' -f 1`" != "$tcpacc_md5" ] && return 2
+	if [ "`md5sum $tcpacc_name | cut -d ' ' -f 1`" != "$tcpacc_md5" ]; then
+		wget https://raw.github.com/steve-m/rtltcpaccess/master/$tcpacc_name -O $tcpacc_name
+		[ "`md5sum $tcpacc_name | cut -d ' ' -f 1`" != "$tcpacc_md5" ] && return 2
 	fi
 
 	return 0
@@ -41,14 +43,14 @@ if [ "$?" != "0" ]; then
 fi
 
 # unpack the archive
-unzip -o DABPlayer5.01.zip
+unzip -o $dab_name
 
 # install it silently
-wine msiexec /i DABStickInstaller5.01.msi /qn
+wine NOXON_DAB_MediaPlayer-v5.1.3.exe /S
 
 rm "$unix_path/RTL283XACCESS.dll"
 
-tar xvf rtltcpaccess.tar.gz
+tar xvf $tcpacc_name
 cp RTL283XACCESS.dll "$unix_path/"
 
 # Add device information to registry to make it believe a device is connected via USB
@@ -59,7 +61,7 @@ wine regedit device_key.reg
 # when first starting the application, but starting with version 5 this
 # seems to trigger a Wine bug where the dialog box can't be closed.
 
-echo "REGEDIT4\n" > dab_settings.reg
+echo "REGEDIT4" > dab_settings.reg
 echo "[HKEY_CURRENT_USER\Software\Fraunhofer IIS\MultimediaPlayer\Settings\App]" >> dab_settings.reg
 echo "\"homecallActive\"=\"false\"" >> dab_settings.reg
 echo "\"homecallConfirmed\"=\"true\"" >> dab_settings.reg
